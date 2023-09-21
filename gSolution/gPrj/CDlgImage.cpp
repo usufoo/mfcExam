@@ -60,8 +60,8 @@ BOOL CDlgImage::OnInitDialog()
 
 void CDlgImage::InitImage()
 {
-	int nWidth = 640;
-	int nHeight = 480;
+	int nWidth = 4096*5;
+	int nHeight = 4096*5;
 	int nBpp = 8;
 
 	m_image.Create(nWidth, -nHeight, nBpp);
@@ -98,14 +98,17 @@ void CDlgImage::OnPaint()
 
 void CDlgImage::drawData(CDC* pDC)
 {
-	CRect rect;
-	CPen pen;
-	pen.CreatePen(PS_SOLID, 5, COLOR_GREEN);
-	CPen* pOldPen = pDC->SelectObject(&pen);  // 현재 펜을 저장
-	for (int i = 0; i < m_nDataCount; i++) {
-		rect.SetRect(m_ptData[i], m_ptData[i]);
-		rect.InflateRect(2, 2);
-		pDC->Ellipse(rect);
+	CRect rect;  // 화면에 그릴 사각형의 크기와 특성을 설정하기 위한 변수를 생성
+	CPen pen;  // 그릴 선의 특성을 설정하기 위한 펜 객체를 생성
+	pen.CreatePen(PS_SOLID, 2, COLOR_RED); // 빨간색 펜, 2 픽셀 두께
+	CPen* pOldPen = pDC->SelectObject(&pen); // 현재 펜을 저장
+
+	for (int i = 0; i < m_nDataCount; i++) {  // 데이터를 기반으로 화면에 원(Ellipse)을 그림
+		rect.SetRect(m_ptData[i], m_ptData[i]);  // 현재 데이터 위치를 기준으로 사각형을 생성
+		rect.InflateRect(1, 1);  // 사각형을 약간 확장시켜서 원처럼 보이도록 함
+		pDC->Ellipse(rect);  // 사각형을 화면에 그려서 원 모양 생성
 	}
-	pDC->SelectObject(pOldPen);
+
+	pDC->SelectObject(pOldPen);  // 펜 복원
 }
+

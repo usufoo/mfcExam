@@ -74,6 +74,7 @@ BEGIN_MESSAGE_MAP(CgPrjDlg, CDialogEx)
 ON_WM_DESTROY()
 //ON_BN_CLICKED(IDOK, &CgPrjDlg::OnBnClickedOk)
 ON_BN_CLICKED(IDC_BTN_TEST, &CgPrjDlg::OnBnClickedBtnTest)
+ON_BN_CLICKED(IDC_BTN_PROCESS, &CgPrjDlg::OnBnClickedBtnProcess)
 END_MESSAGE_MAP()
 
 
@@ -239,3 +240,17 @@ void CgPrjDlg::OnBnClickedBtnTest()
 	m_pDlgImage->Invalidate();  // 화면을 무효화하여 변경 사항을 반영
 	m_pDlgImgResult->Invalidate();
 }
+
+#include "CProcess.h"
+#include <chrono>  // chrono 라이브러리를 포함합니다.
+
+void CgPrjDlg::OnBnClickedBtnProcess()
+{
+	CProcess process;  // CProcess 클래스의 객체를 생성
+	auto start = chrono::system_clock::now();  // 현재 시간을 측정하기 위해 chrono 라이브러리를 사용하는 시작 시간을 기록
+	int nRet = process.getStarInfo(&m_pDlgImage->m_image, 100);  // CProcess 클래스의 getStarInfo 함수를 호출하여 이미지 분석을 수행하고, 결과를 nRet에 저장
+	auto end = chrono::system_clock::now();  // 이미지 분석이 끝난 후에 다시 현재 시간을 측정하여 종료 시간을 기록
+	auto millisec = chrono::duration_cast<chrono::milliseconds>(end - start);  // 시간 간격을 밀리초로 변환
+	cout << nRet << "\t" << millisec.count() << "ms" << endl;  // 분석 결과(nRet)와 걸린 시간(millisec)을 출력
+}
+
