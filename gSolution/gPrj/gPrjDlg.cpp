@@ -75,6 +75,10 @@ ON_WM_DESTROY()
 //ON_BN_CLICKED(IDOK, &CgPrjDlg::OnBnClickedOk)
 ON_BN_CLICKED(IDC_BTN_TEST, &CgPrjDlg::OnBnClickedBtnTest)
 ON_BN_CLICKED(IDC_BTN_PROCESS, &CgPrjDlg::OnBnClickedBtnProcess)
+ON_BN_CLICKED(IDC_BTN_MAKE_PATTERN, &CgPrjDlg::OnBnClickedBtnMakePattern)
+ON_BN_CLICKED(IDC_BTN_GET_DATA, &CgPrjDlg::OnBnClickedBtnGetData)
+//ON_BN_CLICKED(IDC_BTN_CIRCLE, &CgPrjDlg::OnBnClickedBtnCircle)
+//ON_BN_CLICKED(IDC_BTN_CIRCLE_DATA, &CgPrjDlg::OnBnClickedBtnCircleData)
 END_MESSAGE_MAP()
 
 
@@ -209,9 +213,7 @@ void CgPrjDlg::callFunc(int n)
 void CgPrjDlg::OnBnClickedBtnTest()
 {
 	unsigned char* fm = (unsigned char*)m_pDlgImage->m_image.GetBits();  // unsigned char 포인터를 사용하여 이미지 데이터에 접근
-	
-	// 640, 480, pitch
-	int nWidth = m_pDlgImage->m_image.GetWidth();
+	int nWidth = m_pDlgImage->m_image.GetWidth();  // 640, 480, pitch
 	int nHeight = m_pDlgImage->m_image.GetHeight();
 	int nPitch = m_pDlgImage->m_image.GetPitch();
 	memset(fm, 0, nWidth * nHeight);
@@ -252,5 +254,54 @@ void CgPrjDlg::OnBnClickedBtnProcess()
 	auto end = chrono::system_clock::now();  // 이미지 분석이 끝난 후에 다시 현재 시간을 측정하여 종료 시간을 기록
 	auto millisec = chrono::duration_cast<chrono::milliseconds>(end - start);  // 시간 간격을 밀리초로 변환
 	cout << nRet << "\t" << millisec.count() << "ms" << endl;  // 분석 결과(nRet)와 걸린 시간(millisec)을 출력
+}
+
+
+void CgPrjDlg::OnBnClickedBtnGetData()
+{
+	unsigned char* fm = (unsigned char*)m_pDlgImage->m_image.GetBits();  // unsigned char 포인터를 사용하여 이미지 데이터에 접근
+	int nWidth = m_pDlgImage->m_image.GetWidth();  // 640, 480, pitch
+	int nHeight = m_pDlgImage->m_image.GetHeight();
+	int nPitch = m_pDlgImage->m_image.GetPitch();
+
+	int nTh = 0x80;
+	CRect rect(0, 0, nWidth, nHeight);
+	int nSumX = 0;
+	int nSumY = 0;
+	int nCount = 0;
+
+	for (int j = rect.top; j < rect.bottom; j++) {
+		for (int i = rect.left; i < rect.right; i++) {
+			if (fm[j * nPitch + i] > nTh) {
+				nSumX += i;
+				nSumY += j;
+				nCount++;
+			}
+		}
+	}
+
+	double dCenterX = (double)nSumX / nCount;
+	double dCenterY = (double)nSumY / nCount;
+
+	cout << dCenterX << "\t" << dCenterY << endl;
+}
+
+
+void CgPrjDlg::OnBnClickedBtnMakePattern()
+{
+	unsigned char* fm = (unsigned char*)m_pDlgImage->m_image.GetBits();  // unsigned char 포인터를 사용하여 이미지 데이터에 접근
+	int nWidth = m_pDlgImage->m_image.GetWidth();  // 640, 480, pitch
+	int nHeight = m_pDlgImage->m_image.GetHeight();
+	int nPitch = m_pDlgImage->m_image.GetPitch();
+	memset(fm, 0, nWidth * nHeight);
+
+	// 일정 영역에 대한 포인트 만들기
+	CRect rect(100, 100, 200, 200);
+	for (int j = rect.top; j < rect.bottom; j++) {
+		for (int i = rect.left; i < rect.right; i++) {
+			fm[j * nPitch + i] = rand() % 0xff;
+		}
+	}
+	m_pDlgImage->Invalidate();
 }
 
