@@ -70,8 +70,10 @@ BEGIN_MESSAGE_MAP(CgPrjDlg, CDialogEx)
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
 //	ON_BN_CLICKED(IDC_BUTTON1, &CgPrjDlg::OnBnClickedButton1)
-ON_BN_CLICKED(IDC_BTN_DLG, &CgPrjDlg::OnBnClickedBtnDlg)
+//ON_BN_CLICKED(IDC_BTN_DLG, &CgPrjDlg::OnBnClickedBtnDlg)
 ON_WM_DESTROY()
+//ON_BN_CLICKED(IDOK, &CgPrjDlg::OnBnClickedOk)
+ON_BN_CLICKED(IDC_BTN_TEST, &CgPrjDlg::OnBnClickedBtnTest)
 END_MESSAGE_MAP()
 
 
@@ -107,9 +109,17 @@ BOOL CgPrjDlg::OnInitDialog()
 	SetIcon(m_hIcon, FALSE);		// 작은 아이콘을 설정합니다.
 
 	// TODO: 여기에 추가 초기화 작업을 추가합니다.
-	m_pDlgImage = new CDlgImage;
-	m_pDlgImage->Create(IDD_CDlgImage, this);
-	m_pDlgImage->ShowWindow(SW_SHOW);
+	MoveWindow(0, 0, 1280, 800);  // 1. 윈도우를 좌표 (0, 0)에서 (1280, 800)으로 이동 및 크기 조정
+	m_pDlgImage = new CDlgImage;  // 2. 새로운 CDlgImage 객체를 생성합니다.
+	m_pDlgImage->Create(IDD_CDlgImage, this);  // 3. CDlgImage 다이얼로그를 생성하고 현재 다이얼로그(부모 창)에 종속시킴
+	m_pDlgImage->ShowWindow(SW_SHOW);  // 4. 새로 생성한 CDlgImage 다이얼로그를 화면에 표시
+	//m_pDlgImage->MoveWindow(0, 0, 640, 480);  // 5. CDlgImage 다이얼로그를 좌표 (0, 0)에서 (640, 480)으로 이동 및 크기 조정
+
+	// 두 번째 다이얼로그의 위치를 (640, 0)으로 설정하여 화면에서 오른쪽에 배치함
+	m_pDlgImgResult = new CDlgImage;  // 6. 두 번째 CDlgImage 객체 생성
+	m_pDlgImgResult->Create(IDD_CDlgImage, this);  // 7. 두 번째 CDlgImage 다이얼로그 생성
+	m_pDlgImgResult->ShowWindow(SW_SHOW);  // 8. 두 번째 CDlgImage 다이얼로그 표시
+	m_pDlgImgResult->MoveWindow(640, 0, 640, 480);  // 9. 두 번째 CDlgImage 다이얼로그 이동 및 크기 조정
 
 	return TRUE;  // 포커스를 컨트롤에 설정하지 않으면 TRUE를 반환합니다.
 }
@@ -165,21 +175,61 @@ HCURSOR CgPrjDlg::OnQueryDragIcon()
 
 
 #include "CDlgImage.h"
-void CgPrjDlg::OnBnClickedBtnDlg()
-{
-	m_pDlgImage->ShowWindow(SW_SHOW);
-}
+//void CgPrjDlg::OnBnClickedBtnDlg()
+//{
+//	m_pDlgImage->ShowWindow(SW_SHOW);
+//}
 
 
 void CgPrjDlg::OnDestroy()
 {
 	CDialogEx::OnDestroy();
 
-	delete m_pDlgImage;
+	if (m_pDlgImage) {
+		delete m_pDlgImage;
+	}
+	if (m_pDlgImgResult) {
+		delete m_pDlgImgResult;
+	}
 }
 
 void CgPrjDlg::callFunc(int n)
 {
 	//int nData = n;
 	cout << n << endl;
+}
+
+//void CgPrjDlg::OnBnClickedOk()
+//{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+//	CDialogEx::OnOK();
+//}
+
+void CgPrjDlg::OnBnClickedBtnTest()
+{
+	unsigned char* fm = (unsigned char*)m_pDlgImage->m_image.GetBits();  // unsigned char 포인터를 사용하여 이미지 데이터에 접근
+	
+	// 640, 480, pitch
+	int nWidth = m_pDlgImage->m_image.GetWidth();
+	int nHeight = m_pDlgImage->m_image.GetHeight();
+	int nPitch = m_pDlgImage->m_image.GetPitch();
+
+	for (int k = 0; k < 100; k++) {
+		int x = rand() % nWidth;
+		int y = rand() % nHeight;
+		fm[y * nPitch + x] = 0;
+	}
+
+	int nSum = 0;
+	for (int j = 0; j < nHeight; j++) {
+		for (int i = 0; i < nWidth; i++) {
+			if (fm[j * nPitch + i] == 0) {
+				cout << nSum << ":" << i << "," << j << endl;
+				nSum++;
+			}
+		}
+	}
+	cout << nSum << endl;
+	//memset(fm, 0, 320 * 240);  // memset 함수를 사용하여 이미지 데이터를 모두 0으로 초기화
+	m_pDlgImage->Invalidate();  // 화면을 무효화하여 변경 사항을 반영
 }
