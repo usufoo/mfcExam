@@ -97,11 +97,13 @@ void CDlgImage::OnPaint()
 void CDlgImage::drawData(CDC* pDC)
 {
 	CRect rect;
-	pDC->Ellipse(rect);
+	CPen pen;
+	pen.CreatePen(PS_SOLID, 5, RGB(0xff, 0, 0));
+	CPen* pOldPen = pDC->SelectObject(&pen);  // 현재 펜을 저장
 	for (int i = 0; i < m_nDataCount; i++) {
 		rect.SetRect(m_ptData[i], m_ptData[i]);
-		rect.InflateRect(5, 10);
+		rect.InflateRect(2, 2);
 		pDC->Ellipse(rect);
 	}
+	pDC->SelectObject(pOldPen);
 }
-

@@ -213,6 +213,7 @@ void CgPrjDlg::OnBnClickedBtnTest()
 	int nWidth = m_pDlgImage->m_image.GetWidth();
 	int nHeight = m_pDlgImage->m_image.GetHeight();
 	int nPitch = m_pDlgImage->m_image.GetPitch();
+	//memset(fm, 0xff, nWidth * nHeight);
 
 	for (int k = 0; k < 100; k++) {
 		int x = rand() % nWidth;
@@ -220,16 +221,19 @@ void CgPrjDlg::OnBnClickedBtnTest()
 		fm[y * nPitch + x] = 0;
 	}
 
-	int nSum = 0;
+	int nIndex = 0;
 	for (int j = 0; j < nHeight; j++) {
 		for (int i = 0; i < nWidth; i++) {
 			if (fm[j * nPitch + i] == 0) {
-				cout << nSum << ":" << i << "," << j << endl;
-				nSum++;
+				if (m_pDlgImgResult->m_nDataCount < 100) {
+					m_pDlgImgResult->m_ptData[nIndex].x = i;
+					m_pDlgImgResult->m_ptData[nIndex].y = j;
+					m_pDlgImgResult->m_nDataCount = ++nIndex;
+				}
 			}
 		}
 	}
-	cout << nSum << endl;
 	//memset(fm, 0, 320 * 240);  // memset 함수를 사용하여 이미지 데이터를 모두 0으로 초기화
 	m_pDlgImage->Invalidate();  // 화면을 무효화하여 변경 사항을 반영
+	m_pDlgImgResult->Invalidate();
 }
